@@ -1,14 +1,14 @@
-package com.demacia.test.api.models
+package com.demacia.test.data.api.models
 
 import com.google.gson.annotations.SerializedName
 import java.math.BigDecimal
 
 data class PointsResponse(
     @SerializedName("points")
-    val points: List<Point>,
+    val points: List<PointNet>,
 )
 
-data class Point(
+data class PointNet(
     @SerializedName("x")
     val x: BigDecimal,
     @SerializedName("y")
