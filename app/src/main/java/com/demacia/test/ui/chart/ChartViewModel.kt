@@ -40,6 +40,7 @@ class ChartViewModel @Inject constructor(
 
     sealed interface Intent {
         object OnGoClick : Intent
+        data class OnInputChange(val count: String) : Intent
     }
 
     private sealed interface Event {
@@ -48,23 +49,33 @@ class ChartViewModel @Inject constructor(
         object PointsLoading : Event
         class PointsLoaded(val points: List<Point>) : Event
         class PointsFailed(val t: Throwable) : Event
+
+        data class ChangeCount(val count: Int?): Event
     }
 
     private fun act(state: State, intent: Intent): Flow<Event> {
         return when (intent) {
-            is Intent.OnGoClick -> loadData()
+            is Intent.OnGoClick -> loadData(state)
+            is Intent.OnInputChange -> changeCount(intent.count)
         }
     }
 
-    private fun loadData(): Flow<Event> = flow<Event> {
+    private fun loadData(state: State): Flow<Event> = flow<Event> {
         emit(Event.PointsLoading)
-        val count = 1 //TODO: implement counter input
-        println("test points start")
+        val count = state.count ?: return@flow
+        //TODO: validate input count and show error if something wrong
         val points = repository.getPoints(count)
         println("test points=$points")
         emit(Event.PointsLoaded(points))
     }.catch {
         emit(Event.PointsFailed(it))
+    }
+
+    private fun changeCount(count: String): Flow<Event> = flow {
+        //TODO: implement debounce
+        //TODO: implement filter only integer
+        val count: Int? = count.toIntOrNull()
+        emit(Event.ChangeCount(count))
     }
 
     private fun reduce(state: State, event: Event): State {
@@ -82,11 +93,16 @@ class ChartViewModel @Inject constructor(
                 pointsLoading = false,
                 points = event.points,
             )
+
+            is Event.ChangeCount -> state.copy(
+                count = event.count,
+            )
         }
     }
 
     private fun State.toUiState(): UiState {
         return UiState(
+            count = count?.toString() ?: "",
             points = points,
         )
     }

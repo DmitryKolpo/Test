@@ -5,11 +5,20 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -30,13 +39,36 @@ fun ChartScreen(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Content(
     uiState: UiState,
     handleIntent: (intent: ChartViewModel.Intent) -> Unit,
 ) {
     Column() {
-        Spacer(1f)
+        TextField(
+            value = uiState.count,
+            onValueChange = { handleIntent(ChartViewModel.Intent.OnInputChange(it)) },
+            keyboardOptions = KeyboardOptions(
+                autoCorrect = false,
+                keyboardType = KeyboardType.Number,
+            ),
+            //TODO: add clear button
+            supportingText = {
+                Text(
+                    text = "How many points do you want to display?",
+                )
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 16.dp)
+        )
+        Table(
+            points = uiState.points,
+            modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 16.dp)
+                .weight(1f)
+        )
         Button(
             onClick = { handleIntent(ChartViewModel.Intent.OnGoClick) },
             modifier = Modifier
@@ -53,7 +85,10 @@ private fun Content(
 @Preview
 @Composable
 private fun Preview() {
-    val uiState = UiState(emptyList())
+    val uiState = UiState(
+        count = "1",
+        points = emptyList(),
+    )
 
     TestTheme {
         Content(uiState) {}
