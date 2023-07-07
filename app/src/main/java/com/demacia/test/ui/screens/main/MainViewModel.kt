@@ -3,7 +3,6 @@ package com.demacia.test.ui.screens.main
 import androidx.lifecycle.ViewModel
 import com.demacia.test.domain.model.Point
 import com.demacia.test.domain.repos.Repository
-import com.demacia.test.ui.components.linechart.data.ChartData
 import com.demacia.test.ui.screens.main.state.Effect
 import com.demacia.test.ui.screens.main.state.State
 import com.demacia.test.ui.screens.main.state.UiState

@@ -34,9 +34,15 @@ fun LineChart(
             }
             val lineData = LineData(dataSet)
 
+            lineChart.setScaleEnabled(true)
             lineChart.description.isEnabled = false
             lineChart.legend.isEnabled = false
             lineChart.data = lineData
+
+            //TODO: to save chart as file use this
+            // Don't forget to set callbacks, handle errors, add storage permission etc
+//            lineChart.saveToGallery("chart")
+
             lineChart.invalidate()
         }
     )
