@@ -4,8 +4,10 @@ import androidx.lifecycle.ViewModel
 import com.demacia.test.domain.model.Point
 import com.demacia.test.domain.repos.Repository
 import com.demacia.test.ui.chart.linechart.data.ChartData
+import com.demacia.test.ui.chart.state.Effect
 import com.demacia.test.ui.chart.state.State
 import com.demacia.test.ui.chart.state.UiState
+import com.demacia.test.ui.uiutils.postEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -22,12 +24,12 @@ import javax.inject.Inject
 @HiltViewModel
 class ChartViewModel @Inject constructor(
     private val repository: Repository,
-) : ContainerHost<State, Any>, ViewModel() {
+) : ContainerHost<State, Effect>, ViewModel() {
 
     internal val uiState: Flow<UiState>
         get() = container.stateFlow.map { it.toUiState() }.flowOn(Dispatchers.Default)
 
-    override val container = container<State, Any>(
+    override val container = container<State, Effect>(
         State()
     )
 
@@ -42,6 +44,7 @@ class ChartViewModel @Inject constructor(
     sealed interface Intent {
         object OnGoClick : Intent
         data class OnInputChange(val count: String) : Intent
+        object OnInputClearClick : Intent
     }
 
     private sealed interface Event {
@@ -58,18 +61,19 @@ class ChartViewModel @Inject constructor(
         return when (intent) {
             is Intent.OnGoClick -> loadData(state)
             is Intent.OnInputChange -> changeCount(intent.count)
+            is Intent.OnInputClearClick -> clearCount()
         }
     }
 
-    private fun loadData(state: State): Flow<Event> = flow<Event> {
+    private fun loadData(state: State): Flow<Event> = flow {
         emit(Event.PointsLoading)
         val count = state.count ?: return@flow
         //TODO: validate input count and show error if something wrong
         val points = repository.getPoints(count)
-        println("test points=$points")
         emit(Event.PointsLoaded(points))
     }.catch {
         emit(Event.PointsFailed(it))
+        postEffect(Effect.ShowError)
     }
 
     private fun changeCount(count: String): Flow<Event> = flow {
@@ -77,6 +81,10 @@ class ChartViewModel @Inject constructor(
         //TODO: implement filter only integer
         val count: Int? = count.toIntOrNull()
         emit(Event.ChangeCount(count))
+    }
+
+    private fun clearCount(): Flow<Event> = flow {
+        emit(Event.ChangeCount(null))
     }
 
     private fun reduce(state: State, event: Event): State {

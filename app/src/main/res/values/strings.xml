@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Test</string>
+
+    <string name="oops">Oops, something goes wrong, let’s try again</string>
+    <string name="go">Go</string>
+    <string name="input_supporting_text">How many points do you want to display?</string>
+
 </resources>

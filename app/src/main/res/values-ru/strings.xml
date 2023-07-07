@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Тест</string>
+
+    <string name="oops">Упс, что-то пошло не так, попробуйте еще раз</string>
+    <string name="go">Поехали</string>
+    <string name="input_supporting_text">Сколько точек отобразить?</string>
+
+</resources>
