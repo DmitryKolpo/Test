@@ -3,6 +3,7 @@ package com.demacia.test.ui.chart
 import androidx.lifecycle.ViewModel
 import com.demacia.test.domain.model.Point
 import com.demacia.test.domain.repos.Repository
+import com.demacia.test.ui.chart.linechart.data.ChartData
 import com.demacia.test.ui.chart.state.State
 import com.demacia.test.ui.chart.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -50,7 +51,7 @@ class ChartViewModel @Inject constructor(
         class PointsLoaded(val points: List<Point>) : Event
         class PointsFailed(val t: Throwable) : Event
 
-        data class ChangeCount(val count: Int?): Event
+        data class ChangeCount(val count: Int?) : Event
     }
 
     private fun act(state: State, intent: Intent): Flow<Event> {
@@ -85,10 +86,12 @@ class ChartViewModel @Inject constructor(
                 pointsLoading = true,
                 pointsError = null,
             )
+
             is Event.PointsFailed -> state.copy(
                 pointsLoading = false,
                 pointsError = event.t,
             )
+
             is Event.PointsLoaded -> state.copy(
                 pointsLoading = false,
                 points = event.points,
@@ -101,9 +104,16 @@ class ChartViewModel @Inject constructor(
     }
 
     private fun State.toUiState(): UiState {
+        val chartData = ChartData(
+            entries = points
+                .sortedBy { it.x }
+                .map { ChartData.Entry(it.x, it.y) },
+        )
+
         return UiState(
             count = count?.toString() ?: "",
             points = points,
+            chartData = chartData,
         )
     }
 }

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -22,6 +23,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.demacia.test.ui.chart.linechart.data.ChartData
+import com.demacia.test.ui.chart.linechart.data.chartPreviewData
 import com.demacia.test.ui.chart.state.UiState
 import com.demacia.test.ui.theme.TestTheme
 import com.demacia.test.ui.uiutils.Spacer
@@ -69,6 +72,13 @@ private fun Content(
                 .padding(horizontal = 16.dp, vertical = 16.dp)
                 .weight(1f)
         )
+        LineChart(
+            chartData = uiState.chartData,
+            modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 16.dp)
+                .weight(1f)
+                .fillMaxWidth()
+        )
         Button(
             onClick = { handleIntent(ChartViewModel.Intent.OnGoClick) },
             modifier = Modifier
@@ -88,6 +98,7 @@ private fun Preview() {
     val uiState = UiState(
         count = "1",
         points = emptyList(),
+        chartData = chartPreviewData,
     )
 
     TestTheme {
