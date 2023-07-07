@@ -21,10 +21,12 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -71,12 +73,14 @@ private fun Content(
     uiState: UiState,
     handleIntent: (intent: MainViewModel.Intent) -> Unit,
 ) {
+    val countText = remember { mutableStateOf("") }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         TextField(
-            value = uiState.count,
-            onValueChange = { handleIntent(MainViewModel.Intent.OnInputChange(it)) },
+            value = countText.value,
+            onValueChange = { countText.value = it },
             keyboardOptions = KeyboardOptions(
                 autoCorrect = false,
                 keyboardType = KeyboardType.Number,
@@ -95,7 +99,7 @@ private fun Content(
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = rememberRipple(false, 24.dp),
-                            onClick = { handleIntent(MainViewModel.Intent.OnInputClearClick) },
+                            onClick = { countText.value = "" },
                         )
                 )
             },
@@ -107,7 +111,7 @@ private fun Content(
         if (uiState.loading) CircularProgressIndicator()
         Spacer(1f)
         Button(
-            onClick = { handleIntent(MainViewModel.Intent.OnGoClick) },
+            onClick = { handleIntent(MainViewModel.Intent.OnGoClick(countText.value)) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 16.dp)
@@ -123,7 +127,6 @@ private fun Content(
 @Composable
 private fun Preview() {
     val uiState = UiState(
-        count = "1",
         loading = false,
     )
 
