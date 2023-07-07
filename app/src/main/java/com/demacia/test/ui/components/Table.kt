@@ -1,4 +1,4 @@
-package com.demacia.test.ui.chart
+package com.demacia.test.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

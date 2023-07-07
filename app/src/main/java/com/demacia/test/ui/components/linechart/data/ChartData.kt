@@ -1,4 +1,4 @@
-package com.demacia.test.ui.chart.linechart.data
+package com.demacia.test.ui.components.linechart.data
 
 import java.math.BigDecimal
 

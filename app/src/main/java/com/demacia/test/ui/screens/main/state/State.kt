@@ -1,4 +1,4 @@
-package com.demacia.test.ui.chart.state
+package com.demacia.test.ui.screens.main.state
 
 import com.demacia.test.domain.model.Point
 

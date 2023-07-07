@@ -1,12 +1,12 @@
-package com.demacia.test.ui.chart
+package com.demacia.test.ui.screens.main
 
 import androidx.lifecycle.ViewModel
 import com.demacia.test.domain.model.Point
 import com.demacia.test.domain.repos.Repository
-import com.demacia.test.ui.chart.linechart.data.ChartData
-import com.demacia.test.ui.chart.state.Effect
-import com.demacia.test.ui.chart.state.State
-import com.demacia.test.ui.chart.state.UiState
+import com.demacia.test.ui.components.linechart.data.ChartData
+import com.demacia.test.ui.screens.main.state.Effect
+import com.demacia.test.ui.screens.main.state.State
+import com.demacia.test.ui.screens.main.state.UiState
 import com.demacia.test.ui.uiutils.postEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -22,7 +22,7 @@ import org.orbitmvi.orbit.viewmodel.container
 import javax.inject.Inject
 
 @HiltViewModel
-class ChartViewModel @Inject constructor(
+class MainViewModel @Inject constructor(
     private val repository: Repository,
 ) : ContainerHost<State, Effect>, ViewModel() {
 
@@ -64,14 +64,18 @@ class ChartViewModel @Inject constructor(
     }
 
     private fun loadData(state: State): Flow<Event> = flow {
+        if (state.pointsLoading) return@flow
+
         emit(Event.PointsLoading)
         if (state.count == null) {
+            emit(Event.PointsFailed(Exception("Incorrect input")))
             postEffect(Effect.ShowError)
             return@flow
         }
 
         val count = state.count
         val points = repository.getPoints(count)
+        postEffect(Effect.OpenChartScreen)
         emit(Event.PointsLoaded(points))
     }.catch {
         emit(Event.PointsFailed(it))
@@ -112,16 +116,9 @@ class ChartViewModel @Inject constructor(
     }
 
     private fun State.toUiState(): UiState {
-        val chartData = ChartData(
-            entries = points
-                .sortedBy { it.x }
-                .map { ChartData.Entry(it.x, it.y) },
-        )
-
         return UiState(
             count = count?.toString() ?: "",
-            points = points,
-            chartData = chartData,
+            loading = pointsLoading,
         )
     }
 }

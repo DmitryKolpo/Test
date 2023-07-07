@@ -1,4 +1,4 @@
-package com.demacia.test.ui.chart
+package com.demacia.test.ui.screens.main
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -21,23 +22,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.demacia.test.R
-import com.demacia.test.ui.chart.linechart.data.chartPreviewData
-import com.demacia.test.ui.chart.state.Effect
-import com.demacia.test.ui.chart.state.UiState
+import com.demacia.test.navigation.NavScreens
+import com.demacia.test.ui.screens.main.state.Effect
+import com.demacia.test.ui.screens.main.state.UiState
 import com.demacia.test.ui.theme.TestTheme
+import com.demacia.test.ui.uiutils.Spacer
 import com.demacia.test.ui.uiutils.resource
 import com.demacia.test.ui.uiutils.showToast
 
 @Composable
-fun ChartScreen(
-    viewModel: ChartViewModel = viewModel()
+fun MainScreen(
+    navController: NavHostController,
+    viewModel: MainViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val oopsMsg = R.string.oops.resource()
@@ -46,6 +51,7 @@ fun ChartScreen(
         viewModel.container.sideEffectFlow.collect {
             when (it) {
                 is Effect.ShowError -> context.showToast(oopsMsg)
+                is Effect.OpenChartScreen -> navController.navigate(NavScreens.chartNavScreen)
             }
         }
     }
@@ -63,12 +69,14 @@ fun ChartScreen(
 @Composable
 private fun Content(
     uiState: UiState,
-    handleIntent: (intent: ChartViewModel.Intent) -> Unit,
+    handleIntent: (intent: MainViewModel.Intent) -> Unit,
 ) {
-    Column() {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
         TextField(
             value = uiState.count,
-            onValueChange = { handleIntent(ChartViewModel.Intent.OnInputChange(it)) },
+            onValueChange = { handleIntent(MainViewModel.Intent.OnInputChange(it)) },
             keyboardOptions = KeyboardOptions(
                 autoCorrect = false,
                 keyboardType = KeyboardType.Number,
@@ -87,7 +95,7 @@ private fun Content(
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = rememberRipple(false, 24.dp),
-                            onClick = { handleIntent(ChartViewModel.Intent.OnInputClearClick) },
+                            onClick = { handleIntent(MainViewModel.Intent.OnInputClearClick) },
                         )
                 )
             },
@@ -95,27 +103,17 @@ private fun Content(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 16.dp)
         )
-        Table(
-            points = uiState.points,
-            modifier = Modifier
-                .padding(horizontal = 16.dp, vertical = 16.dp)
-                .weight(1f)
-        )
-        LineChart(
-            chartData = uiState.chartData,
-            modifier = Modifier
-                .padding(horizontal = 16.dp, vertical = 16.dp)
-                .weight(1f)
-                .fillMaxWidth()
-        )
+        Spacer(1f)
+        if (uiState.loading) CircularProgressIndicator()
+        Spacer(1f)
         Button(
-            onClick = { handleIntent(ChartViewModel.Intent.OnGoClick) },
+            onClick = { handleIntent(MainViewModel.Intent.OnGoClick) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 16.dp)
         ) {
             Text(
-                text = "Go",
+                text = R.string.go.resource(),
             )
         }
     }
@@ -126,8 +124,7 @@ private fun Content(
 private fun Preview() {
     val uiState = UiState(
         count = "1",
-        points = emptyList(),
-        chartData = chartPreviewData,
+        loading = false,
     )
 
     TestTheme {
