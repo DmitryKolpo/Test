@@ -48,8 +48,6 @@ class ChartViewModel @Inject constructor(
     }
 
     private sealed interface Event {
-        object Refreshing : Event
-
         object PointsLoading : Event
         class PointsLoaded(val points: List<Point>) : Event
         class PointsFailed(val t: Throwable) : Event
@@ -67,8 +65,12 @@ class ChartViewModel @Inject constructor(
 
     private fun loadData(state: State): Flow<Event> = flow {
         emit(Event.PointsLoading)
-        val count = state.count ?: return@flow
-        //TODO: validate input count and show error if something wrong
+        if (state.count == null) {
+            postEffect(Effect.ShowError)
+            return@flow
+        }
+
+        val count = state.count
         val points = repository.getPoints(count)
         emit(Event.PointsLoaded(points))
     }.catch {
@@ -77,8 +79,7 @@ class ChartViewModel @Inject constructor(
     }
 
     private fun changeCount(count: String): Flow<Event> = flow {
-        //TODO: implement debounce
-        //TODO: implement filter only integer
+        //TODO: implement more user friendly input validation
         val count: Int? = count.toIntOrNull()
         emit(Event.ChangeCount(count))
     }
@@ -89,7 +90,6 @@ class ChartViewModel @Inject constructor(
 
     private fun reduce(state: State, event: Event): State {
         return when (event) {
-            is Event.Refreshing -> TODO()
             is Event.PointsLoading -> state.copy(
                 pointsLoading = true,
                 pointsError = null,
