@@ -14,3 +14,17 @@
     *   соединение точек не ломаной линией, а сглаженной
     *   работа в портретной и ландшафтной ориентации экрана
     *   сохранение изображения графика в файл
+ 
+### Result
+
+* Implemented: 2 screens, navigation, api request,  in memory cache, errors handling, chart, en/ru localisation, landscape/portrait orientation, light/dark theme
+
+* Things to clarify:
+   - "На главном экране имеется блок информационного текста" please clarify what text should be on top
+   - "Точки на графике должны следовать по возрастанию координаты x" should points in table also be sorted or not?
+ 
+* Known issues:
+  - UX: all errors shows same Oops toast. Texts for different issues can be more infomative for user.
+  - Axis texts in chart in dark theme should be white.
+
+https://github.com/DmitryKolpo/Test/assets/56305336/4411bdf7-990d-4fc7-8b23-27bc640a41ea
